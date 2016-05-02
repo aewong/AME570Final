@@ -23,7 +23,7 @@
     </head>
     <body onload="loadMapStyles()">
         <form>
-            Address: <input type="text" id="address"><br>
+            Address: <input type="text" id="address" onkeydown="if (event.keyCode == 13) {return false;}"><br>
             Map Style: <select id="mapStyles"></select><br><br>
             <button type="button" onclick="javascript:updateMap()">Submit</button>
         </form>
@@ -35,8 +35,8 @@
             
             function initMap() {
                 map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: -34.397, lng: 150.644},
-                    zoom: 8
+                    center: {lat: 33.4242, lng: -111.928001},
+                    zoom: 11
                 });
             }
         
@@ -79,6 +79,12 @@
                         
                         if (latLng != null) {
                             map.setCenter(latLng);
+                        
+                            var marker = new google.maps.Marker({
+                                position: latLng,
+                                map: map,
+                            });
+                        
                             applyMapStyle();
                         }
                     }
