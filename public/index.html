@@ -3,27 +3,93 @@
     <head>
         <title>AME 570 Take Home Final</title>
         <meta name="viewport" content="initial-scale=1.0">
-            <meta charset="utf-8">
-                <style>
-                    html, body {
-                        height: 100%;
-                        margin: 0;
-                        padding: 0;
-                    }
-                #map {
-                    height: 100%;
-                }
-                </style>
-                </head>
-    <body>
+        <meta charset="utf-8">
+        <style>
+            html, body {
+                height: 100%;
+                text-align: center;
+            }
+        
+            #address {
+                width: 500px;
+            }
+    
+            #map {
+                height: 75%;
+                width: 75%;
+                margin: auto;
+            }
+        </style>
+    </head>
+    <body onload="loadMapStyles()">
+        <form>
+            Address: <input type="text" id="address"><br>
+            Map Style: <select id="mapStyles"></select><br><br>
+            <button type="button" onclick="javascript:updateMap()">Submit</button>
+        </form>
+        <br>
         <div id="map"></div>
         <script>
             var map;
+            var mapStyles;
+            
             function initMap() {
                 map = new google.maps.Map(document.getElementById('map'), {
-                                          center: {lat: -34.397, lng: 150.644},
-                                          zoom: 8
-                                          });
+                    center: {lat: -34.397, lng: 150.644},
+                    zoom: 8
+                });
+            }
+        
+            function loadMapStyles() {
+                var url = "./getMapStyles";
+                
+                loadURL(url, function(data) {
+                    mapStyles = JSON.parse(data).styles;
+                    
+                    var markUp = "";
+                        
+                    for (var i = 0; i < mapStyles.length; i++) {
+                        var mapStyle = mapStyles[i];
+                        
+                        markUp += "<option value='" + i + "'>" + mapStyle.name + "</option>";
+                    }
+                        
+                    document.getElementById("mapStyles").innerHTML = markUp;
+                });
+            }
+        
+            function updateMap() {
+                var addressInput = document.getElementById("address");
+                var addressInputValue = addressInput.value;
+                
+                if (addressInputValue != "") {
+                    geocodeAddress(addressInputValue);
+                }
+            }
+        
+            function geocodeAddress(address) {
+                var url = "./geocodeAddress?address=" + encodeURIComponent(address);
+                
+                loadURL(url, function(data) {
+                    var geocodedResponse = JSON.parse(data);
+                        
+                    if (geocodedResponse.status == "OK") {
+                        var location = geocodedResponse.results[0].geometry.location;
+                        var latLng = {lat: location.lat, lng: location.lng};
+                        
+                        if (latLng != null) {
+                            map.setCenter(latLng);
+                            applyMapStyle();
+                        }
+                    }
+                });
+            }
+        
+            function applyMapStyle() {
+                var selectedMapStyle = mapStyles[document.getElementById("mapStyles").selectedIndex];
+                var selectedMapStyleJSON = JSON.parse(selectedMapStyle.json);
+                
+                map.setOptions({styles: selectedMapStyleJSON});
             }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBROgL2XHREjG9AFlELb5e4VmXx5xfoqMk&callback=initMap" async defer></script>
