@@ -46,12 +46,12 @@
                 loadURL(url, function(data) {
                     mapStyles = JSON.parse(data).styles;
                     
-                    var markUp = "";
+                    var markUp = "<option value='0'>Default</option>";
                         
                     for (var i = 0; i < mapStyles.length; i++) {
                         var mapStyle = mapStyles[i];
                         
-                        markUp += "<option value='" + i + "'>" + mapStyle.name + "</option>";
+                        markUp += "<option value='" + (i + 1) + "'>" + mapStyle.name + "</option>";
                     }
                         
                     document.getElementById("mapStyles").innerHTML = markUp;
@@ -92,10 +92,14 @@
             }
         
             function applyMapStyle() {
-                var selectedMapStyle = mapStyles[document.getElementById("mapStyles").selectedIndex];
-                var selectedMapStyleJSON = JSON.parse(selectedMapStyle.json);
+                var selectedIndex = document.getElementById("mapStyles").selectedIndex;
+                var selectedMapStyle = null;
                 
-                map.setOptions({styles: selectedMapStyleJSON});
+                if (selectedIndex > 0) {
+                    selectedMapStyle = JSON.parse(mapStyles[selectedIndex].json);
+                }
+                
+                map.setOptions({styles: selectedMapStyle});
             }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBROgL2XHREjG9AFlELb5e4VmXx5xfoqMk&callback=initMap" async defer></script>
